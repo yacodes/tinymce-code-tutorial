@@ -1,6 +1,6 @@
-import { describe, it } from '@ephox/bedrock-client';
-import { assert } from 'chai';
-import * as CodeStyle from '../../../main/ts/Part2Ex1';
+import { describe, it } from "@ephox/bedrock-client";
+import { assert } from "chai";
+import * as CodeStyle from "../../../main/ts/Part2Ex1";
 
 type Boundz = CodeStyle.Boundz;
 
@@ -24,7 +24,7 @@ yarn bedrock-auto -b chrome-headless -f src/test/ts/part2/Exercise1CodeStyleTest
 If you want to run this in a full browser, try:
 yarn bedrock-auto -b chrome -f src/test/ts/part2/Exercise1CodeStyleTest.ts
 
-TODO: Run bedrock in all modes shown above.
+Run bedrock in all modes shown above.
 
 2. Defining tests
 
@@ -34,15 +34,15 @@ https://mochajs.org/#getting-started
 
 We start with a definition like this...
  */
-describe('Exercise1CodeStyleTests', () => {
-  it('width', () => {
+describe("Exercise1CodeStyleTests", () => {
+  it("width", () => {
     // ... and then we write some test cases
     // We use chai assertions https://www.chaijs.com/api/assert/
 
-    const b: Boundz = ({ x1: 3, y1: 4, x2: 7, y2: 8 });
-    assert.deepEqual(CodeStyle.width(b), 4, 'Width');
-
-    // TODO: write another test case for width
+    const b: Boundz = { x1: 3, y1: 4, x2: 7, y2: 8 };
+    assert.deepEqual(CodeStyle.width(b), 4, "Width");
+    const b2: Boundz = { x1: 10, y1: 5, x2: 20, y2: 10 };
+    assert.deepEqual(CodeStyle.width(b2), 10, "Width");
   });
 
   /*
@@ -52,20 +52,25 @@ describe('Exercise1CodeStyleTests', () => {
   In this case, we'll call "it" again, to write a test for 'height'
 
    */
-  // TODO: write a simple test case for height
+  it("height", () => {
+    const b: Boundz = { x1: 3, y1: 4, x2: 7, y2: 8 };
+    assert.deepEqual(CodeStyle.height(b), 4, "Height");
+    const b2: Boundz = { x1: 10, y1: 5, x2: 20, y2: 10 };
+    assert.deepEqual(CodeStyle.height(b2), 5, "Height");
+  });
 
   /*
   4. Test output
 
   The below test should fail.
 
-  TODO: remove the ".skip" to enable this test. Run it using the commands above.
+  remove the ".skip" to enable this test. Run it using the commands above.
   Notice that the output shows a diff.
-  TODO: Correct the test and run it again.
+  Correct the test and run it again.
 
    */
 
-  it.skip('failing test', () => {
-    assert.deepEqual({ a: 1, b: 2 }, { a: 1, b: 7, c: 8 });
+  it("failing test", () => {
+    assert.deepEqual({ a: 1, b: 2 }, { a: 1, b: 2 });
   });
 });

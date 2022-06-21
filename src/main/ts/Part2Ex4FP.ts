@@ -74,25 +74,24 @@ export const printMessage2 = (e: Optional<string>): void =>
 /*
 Now, printMessage2 is still tricky to test, but getMessage is very easy to test. We've improved the testability of our code.
 
-TODO: Extract a pure function for the logic hiding in this (impure) function
+DONE: Extract a pure function for the logic hiding in this (impure) function
 */
 
-type Mode = 'code' | 'design' | 'markdown';
+type Mode = "code" | "design" | "markdown";
 
 const switchMode = (m: Mode): void => {
   // pretend that something useful happens here that causes a side effect
+  localStorage.setItem("mode", nextMode(m));
 };
 
-const nextMode = (m: Mode): void => {
-  if (m === 'code') {
-    switchMode('design');
-  } else if (m === 'design') {
-    switchMode('markdown');
-  } else {
-    switchMode('code');
+const nextMode = (m: Mode): string => {
+  if (m === "code") {
+    return "design";
+  } else if (m === "design") {
+    return "markdown";
   }
+  return "code";
 };
-
 
 /*
 The identity function.
@@ -100,7 +99,7 @@ The identity function.
 This is a very simple function that takes an argument and returns it.
 */
 
-const identity = <A> (a: A): A => a;
+const identity = <A>(a: A): A => a;
 
 /*
  You can find this function in katamari as Fun.identity.
@@ -111,7 +110,7 @@ const identity = <A> (a: A): A => a;
  on Optional. You can write a similar function like this:
 */
 
-const getOrElse1 = <A> (oa: Optional<A>, other: A): A =>
+const getOrElse1 = <A>(oa: Optional<A>, other: A): A =>
   oa.fold(
     () => other,
     (a) => a
@@ -119,13 +118,15 @@ const getOrElse1 = <A> (oa: Optional<A>, other: A): A =>
 
 // Hang on - that looks familiar. The function we pass as the "some" case is the identity function.
 
-// TODO: write a version of getOrElse1 using Fun.identity.
+// DONE: write a version of getOrElse1 using Fun.identity.
+const getOrElse2 = <A>(a: Optional<A>, other: A): A =>
+  a.fold(() => other, Fun.identity);
 
-// TODO: What happens if you map the identity function over an Optional?
-// Answer: ...
+// DONE: What happens if you map the identity function over an Optional?
+// Answer: Nothing happens. An optional will stay as it was.
 
-// TODO: What happens if you map the identity function over an Array?
-// Answer: ...
+// DONE: What happens if you map the identity function over an Array?
+// Answer: Nothing happens. An array will stay as it was.
 
 /*
 In FP, we use a lot of little functions like identity, that seem insignificant on their own, but they come in handy
@@ -138,7 +139,10 @@ You can find this as Fun.constant in katamari.
 One way of writing it is below:
  */
 
-const constant = <A> (a: A) => (...args: unknown[]): A => a;
+const constant =
+  <A>(a: A) =>
+  (...args: unknown[]): A =>
+    a;
 
 const always3 = constant(3);
 
@@ -147,20 +151,22 @@ So, constant ignores whatever is passed for input parameters, and just returns t
 
 Again, this looks familiar from our getOrElse1 function above.
 
-TODO: rewrite getOrElse1 using both Fun.identity and the "constant" function defined above.
+DONE: rewrite getOrElse1 using both Fun.identity and the "constant" function defined above.
  */
-
+export const getOrElse3 = <A>(a: Optional<A>, other: A): A =>
+  a.fold(Fun.constant(other), Fun.identity);
 
 /*
-TODO: use katamari's Fun.constant in your getOrElse and see if it compiles.
+DONE: use katamari's Fun.constant in your getOrElse and see if it compiles.
  */
+getOrElse3(Optional.none(), "hello");
 
-// TODO: Write a function that takes an array of numbers and replaces each value with 9.
+// DONE: Write a function that takes an array of numbers and replaces each value with 9.
+export const replaceAllInArrWith9 = (a: number[]): number[] =>
+  Arr.map(a, Fun.constant(9));
 
-
-// TODO: In the previous question, what's the *same* between the input and output values
-// Answer:
-
+// DONE: In the previous question, what's the *same* between the input and output values
+// Answer: Array's length.
 
 /*
 Function composition
@@ -189,7 +195,10 @@ This is function composition.
 In TypeScript, it looks a bit like this:
  */
 
-const compose = <A, B, C> (f: (a: B) => C, g: (a: A) => B) => (a: A): C => f(g(a));
+const compose =
+  <A, B, C>(f: (a: B) => C, g: (a: A) => B) =>
+  (a: A): C =>
+    f(g(a));
 
 /*
 The below function "dblS" doubles a number then converts it to a string.
@@ -197,8 +206,7 @@ The below function "dblS" doubles a number then converts it to a string.
 
 const dbl = (x: number): number => x * 2;
 
-const dblS: (s: number) => string =
-  compose(String, dbl);
+const dblS: (s: number) => string = compose(String, dbl);
 
 /*
 It can read a bit funny, since it does the dbl, then the String. But, the order comes from the fact, e.g.
@@ -209,8 +217,12 @@ Now, katamari has a Fun.compose1, which is like our compose here. It also has a 
 signature and handling for n-ary functions. Your rule-of-thumb is to use Fun.compose1 unless you really need Fun.compose.
 */
 
-// TODO: use Fun.compose1 to write a function that doubles a number twice
+// DONE: use Fun.compose1 to write a function that doubles a number twice
+export const dbldbl = Fun.compose1(dbl, dbl);
 
-// TODO: Rewrite this function to use a single map call and function composition
+// DONE: Rewrite this function to use a single map call and function composition
 const dblOs = (oa: Optional<number>): Optional<string> =>
   oa.map(dbl).map(String);
+
+export const dblOs2 = (oa: Optional<number>): Optional<string> =>
+  oa.map(Fun.compose1(String, dbl));

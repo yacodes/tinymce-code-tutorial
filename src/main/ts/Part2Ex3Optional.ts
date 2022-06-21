@@ -1,4 +1,4 @@
-import { Optional } from '@ephox/katamari';
+import { Optional } from "@ephox/katamari";
 
 /*
 Optional
@@ -31,17 +31,24 @@ const parseIntOpt = (s: string): Optional<number> => {
   return Number.isNaN(n) ? Optional.none() : Optional.some(n);
 };
 
+/**
+ * Zero is neither positive or negative, but I treat it as a negative here.
+ * Do not curse me, please.
+ */
 export const toPositiveInteger = (n: number): Optional<number> =>
   n > 0 ? Optional.some(n) : Optional.none();
 
-// TODO: create a function which takes a string and returns some if the string is non-empty
+// DONE: create a function which takes a string and returns some if the string is non-empty
+export const toEmptyString = (s: string): Optional<string> =>
+  s.trim() === "" ? Optional.none() : Optional.some(s);
 
-// TODO: create a function which takes a url as a string and returns the protocol part as an Optional.
+// DONE: create a function which takes a url as a string and returns the protocol part as an Optional.
 // The string may or may not actually have a protocol. For the protocol to be valid, it needs to be all alpha characters.
 // You can use a regex.
 // Have a look at Exercise3OptionTest.ts for example input. Make sure the tests pass.
 export const getProtocol = (url: string): Optional<string> => {
-  throw new Error("TODO");
+  const result = /^[A-Za-z]+(?=:\/\/)/.exec(url);
+  return result ? Optional.some(result[0].toLowerCase()) : Optional.none();
 };
 
 /*
@@ -53,14 +60,15 @@ Optional.from take a value which may be null, undefined or an actual value.
 
 Optional.from is useful for taking values from the "nullable" world to the Optional world.
 
-TODO: use Optional.from to implement the following DOM function
+DONE: use Optional.from to implement the following DOM function
  */
 
-export const getNextSibling = (e: Element): Optional<ChildNode> => {
-  throw new Error("TODO");
-};
+export const getNextSibling = (e: Element): Optional<ChildNode> =>
+  Optional.from(e.nextSibling);
 
-// TODO: use Optional.from to implement a similar wrapper for Element.getAttributeNode(string)
+// DONE: use Optional.from to implement a similar wrapper for Element.getAttributeNode(string)
+export const getAttributeNode = (e: Element, attr: string): Optional<Attr> =>
+  Optional.from(e.getAttributeNode(attr));
 
 /*
 How do we get data out of an Optional? Well, that's a bit tricky since there isn't always
@@ -79,12 +87,19 @@ export const message = (e: Optional<string>): string =>
     (s) => "The value was " + s
   );
 
-// TODO: Implement a function using fold, that takes an Optional<number>. If it's some, double it. If it's none, return 0;
+// DONE: Implement a function using fold, that takes an Optional<number>. If it's some, double it. If it's none, return 0;
+export const double = (num: Optional<number>) =>
+  num.fold(
+    () => 0,
+    (x) => x * 2
+  );
 
-// TODO: Implement a function that takes an Optional<T> for any type T. Return true if it's some, and false if it's none.
-const trueIfSome = <T> (x: Optional<T>): boolean  => {
-  throw new Error("TODO");
-};
+// DONE: Implement a function that takes an Optional<T> for any type T. Return true if it's some, and false if it's none.
+const trueIfSome = <T>(x: Optional<T>): boolean =>
+  x.fold(
+    () => false,
+    () => true
+  );
 
 /*
 The last function you implemented is already part of the Optional type, and is called isSome().
@@ -106,10 +121,18 @@ A common way to handle an Optional value is to provide a default value if in the
 You can do this with fold, but getOr is a shortcut.
 */
 
-// TODO: Using getOr, take an Optional<{age: number}> and turn it into an {age: number}, using a default value of 0.
+export interface Age {
+  age: number;
+}
+// DONE: Using getOr, take an Optional<{age: number}> and turn it into an {age: number}, using a default value of 0.
+export const getAge = (a: Optional<Age>): Age => a.getOr({ age: 0 });
 
-// TODO: Write the same function using fold
-
+// DONE: Write the same function using fold
+export const getAgeWithFold = (a: Optional<Age>): Age =>
+  a.fold(
+    () => ({ age: 0 }),
+    (v: Age) => v
+  );
 
 /*
 Another way of thinking about an Optional, is that it's an array that contains either 0 or 1 elements.
@@ -117,10 +140,15 @@ Another way of thinking about an Optional, is that it's an array that contains e
 Let's explore this by converting Optionals to and from Arrays.
  */
 
-// TODO: Write a function that converts an Optional<A> to an A[] for any type A.
+// DONE: Write a function that converts an Optional<A> to an A[] for any type A.
+export const optionalToArray = <A>(a: Optional<A>): A[] =>
+  a.fold(
+    () => [],
+    (v: A) => [v]
+  );
 
-// TODO: Write a function that converts an A[] to an Optional<A>. If the array has more than one element, only consider the first element.
-
+// DONE: Write a function that converts an A[] to an Optional<A>. If the array has more than one element, only consider the first element.
+export const arrayToOptional = <A>(a: A[]): Optional<A> => Optional.from(a[0]);
 
 /*
 One of the most useful functions on Optional is "map". We say this function "maps a function over the Optional".
@@ -138,15 +166,18 @@ const x: Optional<string> = Optional.some(3).map((x) => String(x)); // returns O
 
 const y: Optional<string> = Optional.none<number>().map((x) => String(x)); // returns Optional.none<string>()
 
-// TODO: Write a function that takes an Optional<number> and adds 3 to the number
+// DONE: Write a function that takes an Optional<number> and adds 3 to the number
+export const add3 = (x: Optional<number>) => x.map((y) => y + 3);
 
-// TODO: Write a function that takes an Optional<string> and prefixes the string with "hello"
+// DONE: Write a function that takes an Optional<string> and prefixes the string with "hello"
+export const prefixWithHello = (s: Optional<string>) =>
+  s.map((a) => `Hello ${a}`);
 
 /*
-TODO: If the below function is called, does it return a value or throw an exception? Why should it behave one way or the other?
-Answer: ...
+DONE: If the below function is called, does it return a value or throw an exception? Why should it behave one way or the other?
+Answer: No, it won't throw. The reason for this is that `Optional` knows that the value is falsy, so there is no reason to call the map callback.
  */
-const willItKersplode = (): Optional<string> => {
+export const willItKersplode = (): Optional<string> => {
   const z = Optional.none<string>();
   return z.map<string>((s) => {
     throw new Error("boom");
@@ -157,9 +188,8 @@ const willItKersplode = (): Optional<string> => {
 Well done! You've tackled the basis of Optionals. We'll dig into them a bit more in future exercises,
 but everything builds on what we've done here.
 
-TODO: head over to Exercise3OptionTest to write some test cases for the above.
+DONE: head over to Exercise3OptionTest to write some test cases for the above.
 */
-
 
 /*
 Below are some explanatory notes on some more advanced topics. Feel free to skip them if you're still learning.
@@ -215,4 +245,3 @@ Below are some explanatory notes on some more advanced topics. Feel free to skip
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
  */
-
